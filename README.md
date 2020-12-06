@@ -32,17 +32,7 @@ sudo apt-get update && sudo apt-get install \
 
 ## Executando o projeto
 
-A partir dos requisitos instalados, é necessário clonar dentro do raiz deste projeto, o servidor e o client:
-
-
-```
-  git clone https://github.com/rafael2ll/sdql-service.git
-```
-```
-  git clone https://github.com/scarpel/sdkiel.git
-  
-```
-Após ter feito o clone, basta executar o docker compose com o seguinte comando, no raiz deste projeto:
+A partir dos requisitos instalados, basta executar o seguinte comando no raiz do projeto:
 
 ```
     docker-compose build && docker-compose up

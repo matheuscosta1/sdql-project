@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="102" height="80" viewBox="0 0 102 80">
+  <defs>
+    <style>
+      .cls-1, .cls-3, .cls-4 {
+        fill-rule: evenodd;
+      }
+
+      .cls-1 {
+        opacity: 0.99;
+        fill: url(#linear-gradient);
+      }
+
+      .cls-2 {
+        font-size: 11.078px;
+        font-family: "SF New Republic SC";
+      }
+
+      .cls-3 {
+        fill: url(#linear-gradient-2);
+      }
+
+      .cls-4 {
+        fill: url(#linear-gradient-3);
+      }
+    </style>
+    <linearGradient id="linear-gradient" x1="67.188" y1="52.117" x2="7.219" y2="30.29" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f6a1cd"/>
+      <stop offset="1" stop-color="#fb1e90"/>
+    </linearGradient>
+    <linearGradient id="linear-gradient-2" x1="7.344" y1="37.226" x2="73.813" y2="11.711" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fb1e90"/>
+      <stop offset="1" stop-color="#fc2a88"/>
+    </linearGradient>
+    <linearGradient id="linear-gradient-3" x1="16.12" y1="77.219" x2="51.598" y2="36.406" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ef0e7d"/>
+      <stop offset="1" stop-color="#fb1e90"/>
+    </linearGradient>
+  </defs>
+  <path id="Rounded_Rectangle_1_copy_2" data-name="Rounded Rectangle 1 copy 2" class="cls-1" d="M22.928,23.775l38.9,15.376c5.073,2.005,6.869,7.992,4.012,13.372s-9.286,8.117-14.359,6.112L12.58,43.258c-5.073-2.005-6.869-7.992-4.012-13.372S17.855,21.77,22.928,23.775Z"/>
+  <text id="D" class="cls-2" transform="translate(20.96 78.597) scale(10.945 10.556)">D</text>
+  <path id="Rounded_Rectangle_1" data-name="Rounded Rectangle 1" class="cls-3" d="M14.268,23.228L58.224,4.922a11.242,11.242,0,0,1,8.644,20.757L22.912,43.985A11.243,11.243,0,0,1,14.268,23.228Z"/>
+  <path id="Rounded_Rectangle_1_copy" data-name="Rounded Rectangle 1 copy" class="cls-4" d="M7.563,55.6L51.518,37.3a11.243,11.243,0,1,1,8.644,20.757L16.207,76.358A11.243,11.243,0,0,1,7.563,55.6Z"/>
+</svg>

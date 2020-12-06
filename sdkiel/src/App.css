@@ -1,0 +1,15 @@
+.app{
+  position: relative;
+  min-height: 100vh;
+  height: auto;
+  width: 100%;
+
+  background-color: rgb(231, 231, 231);
+}
+
+.header{
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+}

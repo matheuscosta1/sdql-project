@@ -1,0 +1,33 @@
+.spinner{
+    display: flex;
+    align-items: center;
+    justify-content:  center;
+
+    gap: 15px;
+}
+
+.spinner .left, .spinner .center, .spinner .right{
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: black;
+
+    animation: move 0.5s ease-out alternate infinite;
+}
+
+.spinner .center{
+    animation-delay: 0.2s;
+}
+
+.spinner .right{
+    animation-delay: 0.4s;
+}
+
+@keyframes move{
+    from{
+        transform: translateY(0px)
+    }
+    to{
+        transform: translateY(-30px)
+    }
+}

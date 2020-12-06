@@ -7,15 +7,19 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sd.nosql.prototype.Record;
 import sd.nosql.prototype.*;
+import sd.nosql.prototype.Record;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -31,9 +35,29 @@ public class ServerTest {
     private static final Logger logger = LoggerFactory.getLogger(ServerTest.class);
     private DatabaseServiceGrpc.DatabaseServiceBlockingStub blockingStub;
     private DatabaseServiceGrpc.DatabaseServiceFutureStub asyncStub;
+    private static Server server;
+
+    @BeforeAll
+    static void init() throws IOException, InterruptedException {
+        server = new Server(8080);
+        AtomicBoolean started = new AtomicBoolean(false);
+        new Thread(() -> {
+            try {
+                server.createBasePath();
+                started.set(true);
+                server.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+        while (!started.get()) Thread.sleep(1000);
+    }
 
     @BeforeEach
-    void init() {
+    void initEach() throws IOException, InterruptedException {
+
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 8080)
                 .usePlaintext()
                 .build();
@@ -43,6 +67,11 @@ public class ServerTest {
         asyncStub = DatabaseServiceGrpc.newFutureStub(channel);
     }
 
+    @AfterAll
+    static void clean() {
+        server.cleanFiles();
+    }
+
     // The two tests ahead perform the same operations so they can't be executed twice [only one, then only after database restore the other might be run].
     @Test
     void write_parallel_100000_with_multiple_clients_successful() {
@@ -50,7 +79,7 @@ public class ServerTest {
                 .usePlaintext()
                 .build())).collect(Collectors.toList());
 
-        LongStream.range(0L, 100000L).parallel().forEach(number -> {
+        LongStream.range(100000L, 200000L).parallel().forEach(number -> {
             Client client = managedChannelCircular.get((int) number % 5);
             RecordResult resultInsert = DatabaseServiceGrpc.newBlockingStub(client.getManagedChannel()).set(RecordInput.newBuilder()
                     .setKey(number)
@@ -120,7 +149,10 @@ public class ServerTest {
                             .setData(ByteString.copyFrom(String.format("{\"message\": \" To every dream that I left behind new version....counting\", \"time\": %d }", number), StandardCharsets.UTF_8))
                             .build())
                     .build());
+            RecordResult fetchedResult = blockingStub.get(Key.newBuilder().setKey(number).build());
             assert result.getResultType().equals(ResultType.SUCCESS);
+            assert fetchedResult.getRecord().getVersion() == 2;
+            assert fetchedResult.getRecord().getData().equals(ByteString.copyFrom(String.format("{\"message\": \" To every dream that I left behind new version....counting\", \"time\": %d }", number), StandardCharsets.UTF_8));
         });
     }
 
@@ -132,6 +164,7 @@ public class ServerTest {
             assert result.getResultType().equals(ResultType.SUCCESS);
         });
     }
+
 
     class Client {
         private int id;

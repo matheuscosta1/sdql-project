@@ -30,7 +30,7 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
     public void set(RecordInput request, StreamObserver<RecordResult> responseObserver) {
         int times = 0;
         try {
-            logger.info("set::{}", request);
+//            logger.info("set::{}", request);
             if (!database.containsKey(request.getKey())) {
                 Record record = request.getRecord().toBuilder().setVersion(1).build();
                 database.put(request.getKey(), record);
@@ -51,7 +51,7 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
 
     @Override
     public void get(Key request, StreamObserver<RecordResult> responseObserver) {
-        logger.info("get::{}", request);
+//        logger.info("get::{}", request);
         if (database.containsKey(request.getKey())) {
             Record record = database.get(request.getKey());
             setResponse(responseObserver, ResultType.SUCCESS, record);
@@ -65,7 +65,7 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
     public void del(Key request, StreamObserver<RecordResult> responseObserver) {
         int times = 0;
         try {
-            logger.info("del::{}", request);
+//            logger.info("del::{}", request);
             if (database.containsKey(request.getKey())) {
                 Record record = database.remove(request.getKey());
                 setResponse(responseObserver, ResultType.SUCCESS, record);
@@ -87,7 +87,7 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
         int times = 0;
         Optional.ofNullable(database.getOrDefault(request.getKey(), null)).ifPresentOrElse(record -> {
             try {
-                logger.info("delVersion::{}", request);
+//                logger.info("delVersion::{}", request);
                 if (record.getVersion() == request.getVersion()) {
                     Record removedRecord = database.remove(request.getKey());
                     setResponse(responseObserver, ResultType.SUCCESS, record);
@@ -110,7 +110,7 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
         int times = 0;
         Optional.ofNullable(database.getOrDefault(request.getKey(), null)).ifPresentOrElse(record -> {
             try {
-                logger.info("testAndSet::{}", request);
+//                logger.info("testAndSet::{}", request);
                 if (record.getVersion() == request.getOldVersion()) {
                     Record newRecord = request.getRecord().toBuilder().setVersion(record.getVersion() + 1).build();
                     database.replace(request.getKey(), newRecord);

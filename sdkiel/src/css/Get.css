@@ -1,0 +1,22 @@
+.get{
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+
+    display: grid;
+    grid-template-columns: 25% 75%;
+}
+
+.get-btn{
+    margin-top: 40px;
+}
+
+.get .previous-docs{
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+}
+
+.get .record{
+    margin-top: 15px;
+}

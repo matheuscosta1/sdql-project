@@ -1,0 +1,81 @@
+.header{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+    height: 60px;
+    box-sizing: border-box;
+    padding: 50px 80px;
+}
+
+.header *:focus{
+    outline: none;
+}
+
+.header .left{
+    display: flex;
+}
+
+.header img{
+    height: 40px;
+}
+
+.header nav{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    background-color: inherit;
+    height: 100%;
+    background-color: cadetblue;
+}
+
+.header nav a{
+    position: relative;
+    padding: 0 15px;
+
+    text-decoration: none;
+    font-family: "SF New Republic";
+    font-weight: bold;
+    font-size: 1.4em;
+    text-transform: uppercase;
+    color: black;
+    letter-spacing: 2px;
+}
+
+.header nav a:last-child{
+    padding-right: 0;
+}
+
+.header nav a:hover::after{
+    content: "";
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translate(-50%, 0);
+
+    width: 50%;
+    height: 2px;
+    background-color: black;
+    border-radius: 10px;
+
+    animation: underline 0.5s ease;
+}
+
+@keyframes underline{
+    from{
+        opacity: 0;
+        transform: translate(-50%, 15px);
+    }
+    to{
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}

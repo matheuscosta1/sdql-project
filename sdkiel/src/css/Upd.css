@@ -1,0 +1,104 @@
+.upd{
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+
+    display: grid;
+    grid-template-columns: 25% 75%;
+}
+
+.upd .dashboard h1{
+    margin-bottom: 40px;
+}
+
+.upd .key-pairs{
+    margin-top: 20px
+}
+
+.data-title, .advanced-title{
+    margin: 0;
+    margin-top: 15px;
+    font-size: 2.5em;
+
+    text-transform: lowercase;
+    user-select: none;
+}
+
+.upd .key-pairs .input-key-pair, .advanced .input-field{
+    margin-bottom: 15px;
+}
+
+.data-fields, .advanced-fields, .info-data{
+    position: relative;
+    padding: 0 25px;
+}
+
+.upd .data-fields:empty::after{
+    content: "No data inserted";
+    font-size: 1.3em;
+    opacity: 0.7;
+    font-family: "Poppins";
+}
+
+.advanced-title{
+   display: flex;
+   align-items: center;
+   justify-content: flex-start;
+
+   cursor: pointer;
+   width: 250px;
+}
+
+.key-pairs-top{
+    display: flex;
+}
+
+.key-pairs-top button{
+    position: relative;
+
+    align-self: flex-end;
+    font-family: "Poppins";
+    font-size: 0.9em;
+    height: 30px;
+    margin-left: 15px;
+    margin-bottom: 15px;
+
+    border: 1px solid black;
+    background-color: transparent;
+    border-radius: 15px;
+    padding: 0px 10px;
+
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.key-pairs-top button:hover{
+    color: white;
+    transition: all 0.5s 0.3s;
+}
+
+.key-pairs-top button:focus{
+    outline: none;
+}
+
+.key-pairs-top button::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -2px;
+
+    width: 0%;
+    height: 100%;
+    border-radius: 10px;
+
+    background-color: black;
+
+    transition: all 0.5s;
+    z-index: -1;
+}
+
+.key-pairs-top button:hover::before{
+    width: 104%;
+}

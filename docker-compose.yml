@@ -1,0 +1,38 @@
+version: "3.7"
+
+services:
+
+  grpc-server:
+    build:
+      context: .
+      dockerfile: Dockerfile-server
+    ports:
+      - "8081:8081"
+    networks:
+      envoymesh:
+        aliases:
+          - kv-backend-service
+
+  grpc-client:
+    build:
+      context: .
+      dockerfile: Dockerfile-client
+    environment:
+      - CLIENT_PROXY=http://kv-client-proxy:9911
+    networks:
+      - envoymesh
+    stdin_open: true
+
+  grpc-client-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile-client-proxy
+    networks:
+      envoymesh:
+        aliases:
+          - kv-client-proxy
+    ports:
+      - "9911:9911"
+
+networks:
+  envoymesh: {}

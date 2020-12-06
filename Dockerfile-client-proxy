@@ -1,0 +1,5 @@
+FROM envoyproxy/envoy:v1.16-latest
+
+COPY ./envoy-proxy-client.yaml /etc/envoy-proxy-client.yaml
+RUN chmod go+r /etc/envoy-proxy-client.yaml
+CMD ["/usr/local/bin/envoy", "-c", "/etc/envoy-proxy-client.yaml"]

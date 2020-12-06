@@ -8,6 +8,8 @@ services:
       dockerfile: Dockerfile-server
     ports:
       - "8080:8080"
+    volumes:
+      - database:/usr/local/database
     networks:
       envoymesh:
         aliases:
@@ -33,6 +35,10 @@ services:
           - kv-client-proxy
     ports:
       - "9090:9090"
+
+volumes:
+  database:
+    external: false
 
 networks:
   envoymesh: {}

@@ -4,5 +4,5 @@ WORKDIR /usr/src/app
 COPY ./sdkiel/package*.json ./
 RUN npm install
 COPY ./sdkiel .
-EXPOSE 9911
+EXPOSE 9090
 ENTRYPOINT ["npm", "start"]

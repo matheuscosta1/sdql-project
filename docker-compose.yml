@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile-server
     ports:
-      - "8081:8081"
+      - "8080:8080"
     networks:
       envoymesh:
         aliases:
@@ -18,7 +18,7 @@ services:
       context: .
       dockerfile: Dockerfile-client
     environment:
-      - CLIENT_PROXY=http://kv-client-proxy:9911
+      - CLIENT_PROXY=http://kv-client-proxy:9090
     networks:
       - envoymesh
     stdin_open: true
@@ -32,7 +32,7 @@ services:
         aliases:
           - kv-client-proxy
     ports:
-      - "9911:9911"
+      - "9090:9090"
 
 networks:
   envoymesh: {}

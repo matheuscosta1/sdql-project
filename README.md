@@ -34,10 +34,6 @@ sudo apt-get update && sudo apt-get install \
 
 A partir dos requisitos instalados, é necessário clonar dentro do raiz deste projeto, o servidor e o client:
 
-
-```
-  git clone https://github.com/rafael2ll/sdql-service.git
-```
 ```
   git clone https://github.com/scarpel/sdkiel.git
   

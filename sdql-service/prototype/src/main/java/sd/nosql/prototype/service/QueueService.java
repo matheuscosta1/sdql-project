@@ -10,9 +10,12 @@ import java.util.TimerTask;
 
 public interface QueueService {
     void produce(QueueRequest request) throws InterruptedException;
+
     void consumeAll() throws InterruptedException;
+
     void setPersistenceService(PersistenceService persistenceService);
-    default void scheduleConsumer(int persistenceTimeInMs) {
+
+    default TimerTask scheduleConsumer(int persistenceTimeInMs) {
         final Logger logger = LoggerFactory.getLogger(QueueService.class);
         Timer timer = new Timer();
         TimerTask timerTask = new TimerTask() {
@@ -21,12 +24,12 @@ public interface QueueService {
                 try {
                     logger.info("Consuming queue requests...");
                     consumeAll();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     logger.info("Error on consuming queue requests", e);
                 }
             }
         };
         timer.schedule(timerTask, new Date(), persistenceTimeInMs);
+        return timerTask;
     }
 }

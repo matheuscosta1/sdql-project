@@ -1,15 +1,22 @@
 package sd.nosql.prototype.service.impl;
 
 import com.google.protobuf.ByteString;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sd.nosql.prototype.Record;
 import sd.nosql.prototype.enums.Operation;
 import sd.nosql.prototype.request.QueueRequest;
 import sd.nosql.prototype.service.PersistenceService;
 import sd.nosql.prototype.service.QueueService;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
@@ -30,11 +37,19 @@ import java.util.stream.IntStream;
 ===================================================================================================
 */
 class QueueServiceImplTest {
+    private static final Logger logger = LoggerFactory.getLogger(QueueServiceImplTest.class);
+
     QueueService service;
     PersistenceService persistenceService = new FilePersistenceServiceImpl();
 
+    @BeforeAll
+    static void start() {
+        createBasePath();
+    }
+
     @BeforeEach
-    void init() {
+    void init() throws InterruptedException {
+
         service = new QueueServiceImpl();
         service.setPersistenceService(persistenceService);
         service.scheduleConsumer(5000);
@@ -43,7 +58,7 @@ class QueueServiceImplTest {
     @Test
     void write_many_records_while_dumping_expecting_success() throws Exception {
         var i = 0;
-        var limit = 1e5;
+        var limit = 1e3;
         do {
             service.produce(new QueueRequest(Operation.SET, (long) i, Record.newBuilder().setTimestamp(System.currentTimeMillis()).setData(ByteString.copyFromUtf8("i=" + i)).build()));
             i++;
@@ -57,7 +72,7 @@ class QueueServiceImplTest {
     @Test
     void write_and_edit_while_dumping_expecting_success() throws Exception {
         var i = 0;
-        var limit = 1e6;
+        var limit = 1e4;
         var updated_text = "i=%d and divisible by 5";
         do {
             service.produce(new QueueRequest(Operation.SET, (long) i, Record.newBuilder().setTimestamp(System.currentTimeMillis()).setData(ByteString.copyFromUtf8("i=" + i)).build()));
@@ -77,7 +92,7 @@ class QueueServiceImplTest {
     @Test
     void write_and_edit_parallel_while_dumping_expecting_success() throws Exception {
         var min = 0;
-        var limit = 1e6;
+        var limit = 1e4;
         var updated_text = "i=%d and divisible by 5";
         IntStream.range(min, (int) limit).parallel().forEach(i -> {
             try {
@@ -101,7 +116,7 @@ class QueueServiceImplTest {
     @Test
     void write_and_edit_and_deleting_parallel_while_dumping_expecting_success() throws Exception {
         var min = 0;
-        var limit = 1e6;
+        var limit = 1e4;
         var updated_text = "i=%d and divisible by 5";
         IntStream.range(min, (int) limit).parallel().forEach(i -> {
             try {
@@ -129,7 +144,7 @@ class QueueServiceImplTest {
     void write_and_edit_and_deleting_parallel_showing_awaiting_time_while_dumping_expecting_success() throws Exception {
         var maxWaitingTime = new AtomicLong();
         var min = 0;
-        var limit = 1e6;
+        var limit = 1e4;
         var updated_text = "i=%d and divisible by 5";
         IntStream.range(min, (int) limit).parallel().forEach(i -> {
             try {
@@ -164,4 +179,30 @@ class QueueServiceImplTest {
         System.out.println(MessageFormat.format("Max Waited Time: {0}", maxWaitingTime));
     }
 
+    public static void createBasePath() {
+        logger.info("Creating base path...");
+        File index = Paths.get("database/").toFile();
+        if (!index.exists()) {
+            index.mkdir();
+            logger.info("\tCreating database/");
+            Paths.get("database/data/").toFile().mkdir();
+            logger.info("\tCreating database/data");
+        } else {
+            logger.info("Base path already exists...");
+        }
+    }
+
+    public void cleanFiles() {
+        logger.info("Resetting base path...");
+        File index = Paths.get("database/").toFile();
+        if (index.exists()) {
+            logger.info("\tResetting database/data");
+            File file = Paths.get("database/data").toFile();
+            Arrays.stream(Optional.ofNullable(file.listFiles()).orElse(new File[]{})).peek(file1 -> logger.info("Deletting " + file1.getName())).forEach(File::delete);
+            Paths.get("database/version.db").toFile().delete();
+
+        } else {
+            logger.info("Base path already exists...");
+        }
+    }
 }

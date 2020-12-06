@@ -1,8 +1,6 @@
-FROM ubuntu:20.04
+FROM maven:3.6.3-openjdk-14-slim
 
 WORKDIR /usr/local
-
-RUN apt-get update -y && apt-get install maven -y && apt-get install openjdk-14-jdk -y
 
 COPY ./sdql-service /usr/local/
 

@@ -49,7 +49,7 @@ class QueueServiceImplTest {
 
     @BeforeEach
     void init() throws InterruptedException {
-
+        cleanFiles();
         service = new QueueServiceImpl();
         service.setPersistenceService(persistenceService);
         service.scheduleConsumer(5000);

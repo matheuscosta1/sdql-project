@@ -79,7 +79,7 @@ public class ServerTest {
                 .usePlaintext()
                 .build())).collect(Collectors.toList());
 
-        LongStream.range(100000L, 200000L).parallel().forEach(number -> {
+        LongStream.range(10000L, 20000L).parallel().forEach(number -> {
             Client client = managedChannelCircular.get((int) number % 5);
             RecordResult resultInsert = DatabaseServiceGrpc.newBlockingStub(client.getManagedChannel()).set(RecordInput.newBuilder()
                     .setKey(number)
@@ -96,7 +96,7 @@ public class ServerTest {
 
     @Test
     void write_parallel_100000_successful() {
-        LongStream.range(0L, 100000L).parallel().forEach(number -> {
+        LongStream.range(0L, 10000L).parallel().forEach(number -> {
             RecordResult resultInsert = blockingStub.set(RecordInput.newBuilder()
                     .setKey(number)
                     .setRecord(Record.newBuilder()
@@ -111,7 +111,7 @@ public class ServerTest {
     @Test
     void write_parallel_100000_async_successful() throws InterruptedException {
         AtomicInteger count = new AtomicInteger();
-        LongStream.range(0L, 100000L).parallel().forEach(number -> {
+        LongStream.range(0L, 10000L).parallel().forEach(number -> {
             var asyncResult = asyncStub.set(RecordInput.newBuilder()
                     .setKey(number)
                     .setRecord(Record.newBuilder()
@@ -132,7 +132,7 @@ public class ServerTest {
                 }
             }, MoreExecutors.directExecutor());
         });
-        while (count.get() < 100000) {
+        while (count.get() < 10000) {
             logger.info("Count: {}", count.get());
             Thread.sleep(1000);
         }
@@ -140,7 +140,7 @@ public class ServerTest {
 
     @Test
     void update_all_10000_in_sequence() {
-        LongStream.range(0L, 100000L).parallel().forEach(number -> {
+        LongStream.range(0L, 10000L).parallel().forEach(number -> {
             RecordResult result = blockingStub.testAndSet(RecordUpdate.newBuilder()
                     .setOldVersion(1)
                     .setKey(number)
@@ -158,7 +158,7 @@ public class ServerTest {
 
     @Test
     void read_all_10000_in_sequence() {
-        LongStream.range(0L, 100000L).parallel().forEach(number -> {
+        LongStream.range(0L, 10000L).parallel().forEach(number -> {
             RecordResult result = blockingStub.get(Key.newBuilder().setKey(number).build());
             if (number % 1000 == 0) logger.info("Result: {}", result);
             assert result.getResultType().equals(ResultType.SUCCESS);

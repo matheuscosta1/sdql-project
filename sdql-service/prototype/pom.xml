@@ -35,6 +35,20 @@
             <version>5.7.0</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.ratis/ratis-server -->
+        <dependency>
+            <groupId>org.apache.ratis</groupId>
+            <artifactId>ratis-server</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.ratis/ratis-grpc -->
+        <dependency>
+            <groupId>org.apache.ratis</groupId>
+            <artifactId>ratis-grpc</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>

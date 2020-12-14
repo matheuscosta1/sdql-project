@@ -5,128 +5,80 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sd.nosql.prototype.Record;
 import sd.nosql.prototype.*;
-import sd.nosql.prototype.enums.Operation;
-import sd.nosql.prototype.request.QueueRequest;
-import sd.nosql.prototype.service.PersistenceService;
-import sd.nosql.prototype.service.QueueService;
+import sd.nosql.prototype.service.RaftClientService;
 
-import java.util.Map;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
 
 public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseServiceImpl.class);
-    private final QueueService queueService = new QueueServiceImpl();
-    Map<Long, Record> database;
+    private final RaftClientService raftClientService = new RaftClientServiceImpl();
 
-    public DatabaseServiceImpl(int persistenceTimeInMs) {
-        PersistenceService persistenceService = new FilePersistenceServiceImpl();
-        database = persistenceService.read();
-        queueService.setPersistenceService(persistenceService);
-        queueService.scheduleConsumer(persistenceTimeInMs);
-    }
-
-
-    @Override
-    public void set(RecordInput request, StreamObserver<RecordResult> responseObserver) {
-        int times = 0;
-        try {
-//            logger.info("set::{}", request);
-            if (!database.containsKey(request.getKey())) {
-                Record record = request.getRecord().toBuilder().setVersion(1).build();
-                database.put(request.getKey(), record);
-                setResponse(responseObserver, ResultType.SUCCESS, null);
-                queueService.produce(new QueueRequest(Operation.SET, request.getKey(), record));
-            } else {
-                Record record = database.get(request.getKey());
-                setResponse(responseObserver, ResultType.ERROR, record);
-            }
-            responseObserver.onCompleted();
-        } catch (Exception e) {
-            logger.error("Error executing set::{}", request, e);
-            if (canAttemptAgain(times)) {
-                set(request, responseObserver);
-            }
-        }
-    }
+    public DatabaseServiceImpl() {}
 
     @Override
     public void get(Key request, StreamObserver<RecordResult> responseObserver) {
-//        logger.info("get::{}", request);
-        if (database.containsKey(request.getKey())) {
-            Record record = database.get(request.getKey());
-            setResponse(responseObserver, ResultType.SUCCESS, record);
-        } else {
-            setResponse(responseObserver, ResultType.ERROR, null);
-        }
+        logger.info("get::{}", request.getKey());
+        String operation = "get " + request.getKey();
+        String raftResponse = raftClientService.query(operation); // TODO: Use response
+        responseObserver.onNext(RecordResult.newBuilder()
+                .setResultType(ResultType.SUCCESS)
+                .build());
         responseObserver.onCompleted();
     }
 
     @Override
-    public void del(Key request, StreamObserver<RecordResult> responseObserver) {
-        int times = 0;
+    public void set(RecordInput request, StreamObserver<RecordResult> responseObserver) {
+        // TODO: With problems because of the record
         try {
-//            logger.info("del::{}", request);
-            if (database.containsKey(request.getKey())) {
-                Record record = database.remove(request.getKey());
-                setResponse(responseObserver, ResultType.SUCCESS, record);
-                queueService.produce(new QueueRequest(Operation.DEL, request.getKey(), record));
+            logger.info("set::");
+            String getOperation = "get " + request.getKey();
+            String value = raftClientService.query(getOperation);
+            if (value == null) {
+                Record record = request.getRecord().toBuilder().setVersion(1).build();
+                String data = record.toByteString().toString(StandardCharsets.UTF_8);
+                String operation = "set " + request.getKey() + " " + data;
+                raftClientService.applyTransaction(operation);
+                setResponse(responseObserver, ResultType.SUCCESS, null);
+            } else {
+                setResponse(responseObserver, ResultType.ERROR, null); // TODO: Should return record that alrady exists
+            }
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            // TODO: Try again
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void del(Key request, StreamObserver<RecordResult> responseObserver) {
+        try {
+            logger.info("del::{}", request);
+            String getOperation = "get " + request.getKey();
+            String value = raftClientService.query(getOperation);
+            if (value != null) {
+                String operation = "del " + request.getKey();
+                raftClientService.applyTransaction(operation);
+                setResponse(responseObserver, ResultType.SUCCESS, null); // TODO: Should return record that was removed
             } else {
                 setResponse(responseObserver, ResultType.ERROR, null);
             }
             responseObserver.onCompleted();
         } catch (Exception e) {
-            logger.error("Error executing del::{}", request, e);
-            if (canAttemptAgain(times)) {
-                del(request, responseObserver);
-            }
+            // TODO: Try again
+            e.printStackTrace();
         }
     }
 
     @Override
     public void delVersion(Version request, StreamObserver<RecordResult> responseObserver) {
-        int times = 0;
-        Optional.ofNullable(database.getOrDefault(request.getKey(), null)).ifPresentOrElse(record -> {
-            try {
-//                logger.info("delVersion::{}", request);
-                if (record.getVersion() == request.getVersion()) {
-                    Record removedRecord = database.remove(request.getKey());
-                    setResponse(responseObserver, ResultType.SUCCESS, record);
-                    queueService.produce(new QueueRequest(Operation.DEL_VERSION, request.getKey(), removedRecord));
-                } else {
-                    setResponse(responseObserver, ResultType.ERROR_WV, record);
-                }
-            } catch (Exception e) {
-                logger.error("Error executing delVersion::{}", request, e);
-                if (canAttemptAgain(times)) {
-                    delVersion(request, responseObserver);
-                }
-            }
-        }, () -> setResponse(responseObserver, ResultType.ERROR_NE, null));
-        responseObserver.onCompleted();
+        logger.info("delVersion::");
+        // TODO: Has to fix record saving first
     }
 
     @Override
     public void testAndSet(RecordUpdate request, StreamObserver<RecordResult> responseObserver) {
-        int times = 0;
-        Optional.ofNullable(database.getOrDefault(request.getKey(), null)).ifPresentOrElse(record -> {
-            try {
-//                logger.info("testAndSet::{}", request);
-                if (record.getVersion() == request.getOldVersion()) {
-                    Record newRecord = request.getRecord().toBuilder().setVersion(record.getVersion() + 1).build();
-                    database.replace(request.getKey(), newRecord);
-                    setResponse(responseObserver, ResultType.SUCCESS, record);
-                    queueService.produce(new QueueRequest(Operation.TEST_SET, request.getKey(), newRecord));
-                } else {
-                    setResponse(responseObserver, ResultType.ERROR_WV, record);
-                }
-            } catch (Exception e) {
-                logger.error("Error executing testAndSet::{}", request, e);
-                if (canAttemptAgain(times)) {
-                    testAndSet(request, responseObserver);
-                }
-            }
-        }, () -> setResponse(responseObserver, ResultType.ERROR_NE, null));
-        responseObserver.onCompleted();
+        logger.info("testAndSet::");
+        // TODO: Has to fix record saving first
     }
 
     private void setResponse(StreamObserver<RecordResult> responseObserver, ResultType resultType, Record record) {
@@ -140,10 +92,5 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
                     .setRecord(record)
                     .build());
         }
-    }
-
-    private boolean canAttemptAgain(int times) {
-        times++;
-        return times <= 4;
     }
 }

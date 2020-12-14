@@ -23,6 +23,32 @@ public class Client {
 
         logger.info("Channel: {}", channel);
 
+        DatabaseServiceGrpc.DatabaseServiceBlockingStub stub = DatabaseServiceGrpc.newBlockingStub(channel);
+
+
+        RecordResult r1 = stub.set(RecordInput.newBuilder()
+                .setKey(20L)
+                .setRecord(Record.newBuilder()
+                        .setTimestamp(System.currentTimeMillis())
+                        .setData(ByteString.copyFrom("{\"message\": \" Some message\"}", StandardCharsets.UTF_8))
+                        .build())
+                .build());
+        logger.info("Get: {}", stub.get(Key.newBuilder().setKey(20L).build()));
+
+        RecordResult r2 = stub.del(Key.newBuilder().setKey(20L).build());
+        logger.info("Set: {}", r2);
+        logger.info("Get: {}", stub.get(Key.newBuilder().setKey(20L).build()));
+        channel.shutdown();
+    }
+
+    /*
+    public static void main(String[] args) throws InterruptedException {
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 8080)
+                .usePlaintext()
+                .build();
+
+        logger.info("Channel: {}", channel);
+
         DatabaseServiceGrpc.DatabaseServiceFutureStub stub = DatabaseServiceGrpc.newFutureStub(channel);
 
         stub.set(RecordInput.newBuilder()
@@ -63,4 +89,6 @@ public class Client {
         logger.info("Current Record: {}", stub.get(Key.newBuilder().setKey(1606078612219L).build()));
         channel.shutdown();
     }
+
+     */
 }

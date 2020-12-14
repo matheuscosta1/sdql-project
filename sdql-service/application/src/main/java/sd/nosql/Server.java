@@ -35,7 +35,7 @@ public class Server {
     public Server(int port) {
         server = ServerBuilder
                 .forPort(port)
-                .addService(new DatabaseServiceImpl(30000))
+                .addService(new DatabaseServiceImpl())
                 .build();
     }
 

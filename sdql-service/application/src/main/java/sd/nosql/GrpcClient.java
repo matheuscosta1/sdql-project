@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import sd.nosql.prototype.DatabaseServiceGrpc;
 import sd.nosql.prototype.Key;
 
-public class Client {
-    private static final Logger logger = LoggerFactory.getLogger(Client.class);
+public class GrpcClient {
+    private static final Logger logger = LoggerFactory.getLogger(GrpcClient.class);
 
     public static void main(String[] args) throws InterruptedException {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 8080)

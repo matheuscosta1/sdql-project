@@ -26,18 +26,36 @@ public class Client {
         DatabaseServiceGrpc.DatabaseServiceBlockingStub stub = DatabaseServiceGrpc.newBlockingStub(channel);
 
 
+        /*
         RecordResult r1 = stub.set(RecordInput.newBuilder()
-                .setKey(20L)
+                .setKey(50L)
                 .setRecord(Record.newBuilder()
+                        .setVersion(43)
                         .setTimestamp(System.currentTimeMillis())
                         .setData(ByteString.copyFrom("{\"message\": \" Some message\"}", StandardCharsets.UTF_8))
                         .build())
                 .build());
-        logger.info("Get: {}", stub.get(Key.newBuilder().setKey(20L).build()));
+        logger.info("Set :: {}", r1);
 
-        RecordResult r2 = stub.del(Key.newBuilder().setKey(20L).build());
-        logger.info("Set: {}", r2);
-        logger.info("Get: {}", stub.get(Key.newBuilder().setKey(20L).build()));
+         */
+        Record update = Record.newBuilder()
+                .setVersion(43)
+                .setTimestamp(System.currentTimeMillis())
+                .setData(ByteString.copyFrom("{\"message\": \" Some message 123 new\"}", StandardCharsets.UTF_8))
+                .build();
+
+        //logger.info("DelVersion :: {}", stub.delVersion(Version.newBuilder().setVersion(3).setKey(10L).build()));
+        logger.info("TestAndSet :: {}", stub.testAndSet(RecordUpdate.newBuilder().setOldVersion(2).setRecord(update).setKey(50L).build()));
+
+
+        //logger.info("Del :: {}", stub.del(Key.newBuilder().setKey(50L).build()));
+
+
+
+        //logger.info("Get: {}", stub.get(Key.newBuilder().setKey(50L).build()));
+
+        //RecordResult r2 = stub.del(Key.newBuilder().setKey(21L).build());
+        //logger.info("Get: {}", stub.get(Key.newBuilder().setKey(21L).build()));
         channel.shutdown();
     }
 

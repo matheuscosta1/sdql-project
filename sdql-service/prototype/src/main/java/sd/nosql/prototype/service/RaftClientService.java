@@ -1,6 +1,8 @@
 package sd.nosql.prototype.service;
 
+import sd.nosql.prototype.Record;
+
 public interface RaftClientService {
-    String query(String operation);
-    String applyTransaction(String operation);
+    Record query(String operation);
+    Record applyTransaction(String operation);
 }

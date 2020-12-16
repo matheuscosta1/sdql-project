@@ -33,7 +33,6 @@ public class RaftServer {
     {
         String raftGroupId = RAFT_GROUP_ID; // 16 caracteres.
 
-        //Setup for node all nodes.
         Map<String,InetSocketAddress> id2addr = new HashMap<>();
         id2addr.put("p1", new InetSocketAddress("127.0.0.1", 3000));
         id2addr.put("p2", new InetSocketAddress("127.0.0.1", 3500));
@@ -44,7 +43,6 @@ public class RaftServer {
                 .map(e -> new RaftPeer(RaftPeerId.valueOf(e.getKey()), e.getValue()))
                 .collect(Collectors.toList());
 
-        //Setup for this node.
         RaftPeerId myId = RaftPeerId.valueOf(args[0]);
 
         if (addresses.stream().noneMatch(p -> p.getId().equals(myId)))
@@ -58,8 +56,6 @@ public class RaftServer {
         GrpcConfigKeys.Server.setPort(properties, id2addr.get(args[0]).getPort());
         RaftServerConfigKeys.setStorageDir(properties, Collections.singletonList(new File(RAFT_DIRECTORY + myId)));
 
-
-        //Join the group of processes.
         final RaftGroup raftGroup = RaftGroup.valueOf(RaftGroupId.valueOf(ByteString.copyFromUtf8(raftGroupId)), addresses);
         org.apache.ratis.server.RaftServer raftServer = org.apache.ratis.server.RaftServer.newBuilder()
                 .setServerId(myId)

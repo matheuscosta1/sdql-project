@@ -34,8 +34,6 @@ public class StateMachineServiceImpl extends BaseStateMachine {
 
     @Override
     public CompletableFuture<Message> applyTransaction(TransactionContext trx) {
-        // TODO: Use record instead of string
-
         RaftProtos.LogEntryProto entry = trx.getLogEntry();
         RaftProtoRequest request = getRaftProtoRequest(entry);
         String response = applyOperation(request);
@@ -43,7 +41,6 @@ public class StateMachineServiceImpl extends BaseStateMachine {
             LOG.debug("{} key {} with value {}", request.getOperation(), request.getKey(), request.getData());
             return CompletableFuture.completedFuture(Message.valueOf(response));
         } else {
-            // TODO: Handle
             LOG.debug("Error on operation {} key {} with value {}", request.getOperation(), request.getKey(), request.getData());
             return CompletableFuture.completedFuture(Message.EMPTY);
         }

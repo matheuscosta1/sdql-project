@@ -1,17 +1,11 @@
 package sd.nosql;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sd.nosql.prototype.Record;
-import sd.nosql.prototype.*;
-
-import java.nio.charset.StandardCharsets;
+import sd.nosql.prototype.DatabaseServiceGrpc;
+import sd.nosql.prototype.Key;
 
 public class Client {
     private static final Logger logger = LoggerFactory.getLogger(Client.class);
@@ -38,24 +32,28 @@ public class Client {
         logger.info("Set :: {}", r1);
 
          */
+
+        /*
         Record update = Record.newBuilder()
                 .setVersion(43)
                 .setTimestamp(System.currentTimeMillis())
                 .setData(ByteString.copyFrom("{\"message\": \" Some message 123 new\"}", StandardCharsets.UTF_8))
                 .build();
 
-        //logger.info("DelVersion :: {}", stub.delVersion(Version.newBuilder().setVersion(3).setKey(10L).build()));
         logger.info("TestAndSet :: {}", stub.testAndSet(RecordUpdate.newBuilder().setOldVersion(2).setRecord(update).setKey(50L).build()));
+
+         */
 
 
         //logger.info("Del :: {}", stub.del(Key.newBuilder().setKey(50L).build()));
 
+        //logger.info("DelVersion :: {}", stub.delVersion(Version.newBuilder().setVersion(3).setKey(10L).build()));
 
 
         //logger.info("Get: {}", stub.get(Key.newBuilder().setKey(50L).build()));
 
         //RecordResult r2 = stub.del(Key.newBuilder().setKey(21L).build());
-        //logger.info("Get: {}", stub.get(Key.newBuilder().setKey(21L).build()));
+        logger.info("Get: {}", stub.get(Key.newBuilder().setKey(50L).build()));
         channel.shutdown();
     }
 
@@ -110,3 +108,4 @@ public class Client {
 
      */
 }
+    

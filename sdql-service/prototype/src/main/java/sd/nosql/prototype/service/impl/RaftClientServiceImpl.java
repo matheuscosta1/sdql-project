@@ -55,7 +55,6 @@ public class RaftClientServiceImpl implements RaftClientService {
     }
 
     private RaftClient getRaftClient() {
-        // TODO: Improve raft fault tolerance
         Map<String, InetSocketAddress> id2addr = new HashMap<>();
         id2addr.put("p1", new InetSocketAddress(HOSTNAME, 3000));
         id2addr.put("p2", new InetSocketAddress(HOSTNAME, 3500));

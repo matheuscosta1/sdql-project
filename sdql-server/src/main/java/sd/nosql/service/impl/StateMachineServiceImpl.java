@@ -26,7 +26,7 @@ public class StateMachineServiceImpl extends BaseStateMachine {
         String response = database.get(raftRequest.getKey());
         LOG.debug("GET key {}, result {}", raftRequest.getKey(), response);
         if (response != null) {
-            return CompletableFuture.completedFuture(Message.valueOf(response)); // TODO: Send correct response instead
+            return CompletableFuture.completedFuture(Message.valueOf(response));
         } else {
             return CompletableFuture.completedFuture(Message.EMPTY);
         }

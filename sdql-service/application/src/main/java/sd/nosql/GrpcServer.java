@@ -5,11 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sd.nosql.prototype.service.impl.DatabaseServiceImpl;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Optional;
 
 /*
 ========================================================================================================================
@@ -28,11 +24,11 @@ import java.util.Optional;
      |-> version.db // Also programmatically created
 ========================================================================================================================
 */
-public class Server {
-    private static final Logger logger = LoggerFactory.getLogger(Server.class);
+public class GrpcServer {
+    private static final Logger logger = LoggerFactory.getLogger(GrpcServer.class);
     final io.grpc.Server server;
 
-    public Server(int port) {
+    public GrpcServer(int port) {
         server = ServerBuilder
                 .forPort(port)
                 .addService(new DatabaseServiceImpl())
@@ -50,11 +46,12 @@ public class Server {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         logger.info("Starting server...");
-        Server server = new Server(8080);
-        server.createBasePath();
+        GrpcServer server = new GrpcServer(8080);
+        //server.createBasePath();
         server.start();
     }
 
+    /*
     public void createBasePath() {
         logger.info("Creating base path...");
         File index = Paths.get("database/").toFile();
@@ -81,4 +78,6 @@ public class Server {
             logger.info("Base path already exists...");
         }
     }
+
+     */
 }

@@ -2,14 +2,29 @@ version: "3.7"
 
 services:
 
+  grpc-ratis-server:
+    build:
+      context: .
+      dockerfile: Dockerfile-server-ratis
+    ports:
+      - "3000:3000"
+      - "3500:3500"
+      - "4000:4000"
+    volumes:
+      - database:/usr/local/database
+    depends_on:
+      - "grpc-server"
+    networks:
+      envoymesh:
+        aliases:
+          - kv-backend-service
+
   grpc-server:
     build:
       context: .
       dockerfile: Dockerfile-server
     ports:
       - "8080:8080"
-    volumes:
-      - database:/usr/local/database
     networks:
       envoymesh:
         aliases:

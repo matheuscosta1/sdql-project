@@ -27,27 +27,22 @@ public class RaftServer {
     private static final Logger logger = LoggerFactory.getLogger(RaftServer.class);
     private static final String HOSTNAME = "127.0.0.1";
     private static final String RAFT_GROUP_ID = "sdql-group-id___";
-    private static final String RAFT_DIRECTORY = "/home/bianca/Documentos/UFU/SD/sdql-project/sdql-server/tmp/";
+    private static final String RAFT_DIRECTORY = "database/";
 
-    public static void main(String[] args) throws IOException, InterruptedException
-    {
-        String raftGroupId = RAFT_GROUP_ID; // 16 caracteres.
-
+    public static void main(String[] args) throws IOException, InterruptedException {
         Map<String,InetSocketAddress> id2addr = new HashMap<>();
-        id2addr.put("p1", new InetSocketAddress("127.0.0.1", 3000));
-        id2addr.put("p2", new InetSocketAddress("127.0.0.1", 3500));
-        id2addr.put("p3", new InetSocketAddress("127.0.0.1", 4000));
+        id2addr.put("p1", new InetSocketAddress(HOSTNAME, 3000));
+        id2addr.put("p2", new InetSocketAddress(HOSTNAME, 3500));
+        id2addr.put("p3", new InetSocketAddress(HOSTNAME, 4000));
 
         List<RaftPeer> addresses = id2addr.entrySet()
                 .stream()
                 .map(e -> new RaftPeer(RaftPeerId.valueOf(e.getKey()), e.getValue()))
                 .collect(Collectors.toList());
-
         RaftPeerId myId = RaftPeerId.valueOf(args[0]);
 
-        if (addresses.stream().noneMatch(p -> p.getId().equals(myId)))
-        {
-            System.out.println("Identifier " + args[0] + " is invalid.");
+        if (addresses.stream().noneMatch(p -> p.getId().equals(myId))) {
+            logger.error("Identifier {} is invalid", args[0]);
             System.exit(1);
         }
 
@@ -56,7 +51,7 @@ public class RaftServer {
         GrpcConfigKeys.Server.setPort(properties, id2addr.get(args[0]).getPort());
         RaftServerConfigKeys.setStorageDir(properties, Collections.singletonList(new File(RAFT_DIRECTORY + myId)));
 
-        final RaftGroup raftGroup = RaftGroup.valueOf(RaftGroupId.valueOf(ByteString.copyFromUtf8(raftGroupId)), addresses);
+        final RaftGroup raftGroup = RaftGroup.valueOf(RaftGroupId.valueOf(ByteString.copyFromUtf8(RAFT_GROUP_ID)), addresses);
         org.apache.ratis.server.RaftServer raftServer = org.apache.ratis.server.RaftServer.newBuilder()
                 .setServerId(myId)
                 .setStateMachine(new StateMachineServiceImpl()).setProperties(properties)

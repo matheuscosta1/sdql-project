@@ -1,11 +1,17 @@
 package sd.nosql;
 
+import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sd.nosql.prototype.DatabaseServiceGrpc;
 import sd.nosql.prototype.Key;
+import sd.nosql.prototype.Record;
+import sd.nosql.prototype.RecordInput;
+import sd.nosql.prototype.RecordResult;
+
+import java.nio.charset.StandardCharsets;
 
 public class GrpcClient {
     private static final Logger logger = LoggerFactory.getLogger(GrpcClient.class);
@@ -20,7 +26,8 @@ public class GrpcClient {
         DatabaseServiceGrpc.DatabaseServiceBlockingStub stub = DatabaseServiceGrpc.newBlockingStub(channel);
 
 
-        /*
+
+
         RecordResult r1 = stub.set(RecordInput.newBuilder()
                 .setKey(50L)
                 .setRecord(Record.newBuilder()
@@ -31,7 +38,9 @@ public class GrpcClient {
                 .build());
         logger.info("Set :: {}", r1);
 
-         */
+
+
+
 
         /*
         Record update = Record.newBuilder()
@@ -53,7 +62,7 @@ public class GrpcClient {
         //logger.info("Get: {}", stub.get(Key.newBuilder().setKey(50L).build()));
 
         //RecordResult r2 = stub.del(Key.newBuilder().setKey(21L).build());
-        logger.info("Get: {}", stub.get(Key.newBuilder().setKey(50L).build()));
+        //logger.info("Get: {}", stub.get(Key.newBuilder().setKey(50L).build()));
         channel.shutdown();
     }
 

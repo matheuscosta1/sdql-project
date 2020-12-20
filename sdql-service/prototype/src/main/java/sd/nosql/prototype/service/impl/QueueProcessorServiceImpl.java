@@ -8,14 +8,12 @@ import sd.nosql.prototype.representation.QueueRequest;
 import sd.nosql.prototype.service.QueueProcessorService;
 
 import java.util.HashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 public class QueueProcessorServiceImpl implements QueueProcessorService {
     ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("queue-processor-thread-%d").build();
-    ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(50, namedThreadFactory);
+    ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1000, namedThreadFactory);
 
     private static final Logger logger = LoggerFactory.getLogger(QueueProcessorServiceImpl.class);
     private final DatabaseServiceImpl databaseService = new DatabaseServiceImpl();
@@ -40,7 +38,6 @@ public class QueueProcessorServiceImpl implements QueueProcessorService {
         if (!concurrencyModel.isRunning()) {
             logger.info("Starting dequeue thread for: {}", recordKey);
             concurrencyModel.setIsRunning();
-
             executor.submit(() -> {
                 while (!concurrencyModel.getQueue().isEmpty()) {
                     QueueRequest queueRequest = concurrencyModel.getQueue().poll();
@@ -55,7 +52,8 @@ public class QueueProcessorServiceImpl implements QueueProcessorService {
                 }
                 concurrencyModel.setIDLE();
                 logger.info("Stopping dequeue thread for: {}", recordKey);
-
+                logger.info("Current queue: {}", concurrencyControl.values().stream().map(ConcurrencyModel::getQueue).map(BlockingQueue::size).filter(i -> i > 0).collect(Collectors.toList()));
+                logger.info("Current active threads: {}", executor.getActiveCount());
             });
         }
     }

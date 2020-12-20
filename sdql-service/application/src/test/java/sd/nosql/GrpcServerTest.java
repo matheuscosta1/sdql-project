@@ -105,7 +105,7 @@ public class GrpcServerTest {
 
     @Test
     void shouldUpdateAllInSequence() {
-        LongStream.range(1000L, 2000L).parallel().forEach(number -> {
+        LongStream.range(2000L, 3000L).parallel().forEach(number -> {
             RecordResult result = blockingStub.testAndSet(RecordUpdate.newBuilder()
                     .setOldVersion(1)
                     .setKey(number)

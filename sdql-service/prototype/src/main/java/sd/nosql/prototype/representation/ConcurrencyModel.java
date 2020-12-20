@@ -9,7 +9,7 @@ public class ConcurrencyModel {
 
     public ConcurrencyModel() {
         this.isRunning = new AtomicBoolean();
-        this.queue = new ArrayBlockingQueue<>(10);
+        this.queue = new ArrayBlockingQueue<>(100);
     }
 
 

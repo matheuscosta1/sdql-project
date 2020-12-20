@@ -43,13 +43,14 @@ public class QueueProcessorServiceImpl implements QueueProcessorService {
 
             executor.submit(() -> {
                 while (!concurrencyModel.getQueue().isEmpty()) {
-                    QueueRequest request1 = concurrencyModel.getQueue().poll();
-                    switch (request1.getOperation()) {
-                        case GET -> databaseService.get(request1.getKeyInput(), request1.getResponseObserver());
-                        case SET -> databaseService.set(request1.getRecordInput(), request1.getResponseObserver());
-                        case DEL -> databaseService.del(request1.getKeyInput(), request1.getResponseObserver());
-                        case DEL_VERSION -> databaseService.delVersion(request1.getVersion(), request1.getResponseObserver());
-                        case TEST_SET -> databaseService.testAndSet(request1.getRecordUpdate(), request1.getResponseObserver());
+                    QueueRequest queueRequest = concurrencyModel.getQueue().poll();
+
+                    switch (queueRequest.getOperation()) {
+                        case GET -> databaseService.get(queueRequest.getKeyInput(), queueRequest.getResponseObserver());
+                        case SET -> databaseService.set(queueRequest.getRecordInput(), queueRequest.getResponseObserver());
+                        case DEL -> databaseService.del(queueRequest.getKeyInput(), queueRequest.getResponseObserver());
+                        case DEL_VERSION -> databaseService.delVersion(queueRequest.getVersion(), queueRequest.getResponseObserver());
+                        case TEST_SET -> databaseService.testAndSet(queueRequest.getRecordUpdate(), queueRequest.getResponseObserver());
                     }
                 }
                 concurrencyModel.setIDLE();

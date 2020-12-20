@@ -61,7 +61,7 @@ public class GrpcServerTest {
 
     @Test
     void shouldNotWriteSuccessfully() {
-        LongStream.range(0L, 100L).parallel().forEach(number -> {
+        LongStream.range(0L, 1000L).parallel().forEach(number -> {
             RecordResult resultInsert = blockingStub.set(RecordInput.newBuilder()
                     .setKey(number)
                     .setRecord(Record.newBuilder()
@@ -105,7 +105,7 @@ public class GrpcServerTest {
 
     @Test
     void shouldUpdateAllInSequence() {
-        LongStream.range(2000L, 3000L).parallel().forEach(number -> {
+        LongStream.range(1000L, 2000L).parallel().forEach(number -> {
             RecordResult result = blockingStub.testAndSet(RecordUpdate.newBuilder()
                     .setOldVersion(1)
                     .setKey(number)

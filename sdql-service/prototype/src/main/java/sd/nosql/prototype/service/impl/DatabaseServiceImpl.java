@@ -3,8 +3,8 @@ package sd.nosql.prototype.service.impl;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sd.nosql.prototype.Record;
 import sd.nosql.prototype.*;
+import sd.nosql.prototype.Record;
 import sd.nosql.prototype.service.RaftClientService;
 
 public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImplBase {
@@ -78,7 +78,7 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
                 String operation = "del " + request.getKey();
                 Record removedRecord = raftClientService.applyTransaction(operation);
                 setResponse(responseObserver, ResultType.SUCCESS, removedRecord);
-            } else if (record != null){
+            } else if (record != null) {
                 setResponse(responseObserver, ResultType.ERROR_WV, record);
             } else {
                 setResponse(responseObserver, ResultType.ERROR_NE, null);

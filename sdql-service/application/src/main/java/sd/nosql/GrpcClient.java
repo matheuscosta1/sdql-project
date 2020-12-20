@@ -25,9 +25,6 @@ public class GrpcClient {
 
         DatabaseServiceGrpc.DatabaseServiceBlockingStub stub = DatabaseServiceGrpc.newBlockingStub(channel);
 
-
-
-
         RecordResult r1 = stub.set(RecordInput.newBuilder()
                 .setKey(50L)
                 .setRecord(Record.newBuilder()

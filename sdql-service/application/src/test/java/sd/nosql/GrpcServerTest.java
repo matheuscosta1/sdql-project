@@ -61,7 +61,7 @@ public class GrpcServerTest {
 
     @Test
     void shouldNotWriteSuccessfully() {
-        LongStream.range(0L, 1000L).parallel().forEach(number -> {
+        LongStream.range(0L, 100L).parallel().forEach(number -> {
             RecordResult resultInsert = blockingStub.set(RecordInput.newBuilder()
                     .setKey(number)
                     .setRecord(Record.newBuilder()

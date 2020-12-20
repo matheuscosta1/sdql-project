@@ -3,7 +3,7 @@ package sd.nosql;
 import io.grpc.ServerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sd.nosql.prototype.service.impl.DatabaseServiceImpl;
+import sd.nosql.prototype.service.impl.ProxyDatabaseServiceImpl;
 
 import java.io.IOException;
 
@@ -14,7 +14,7 @@ public class GrpcServer {
     public GrpcServer(int port) {
         server = ServerBuilder
                 .forPort(port)
-                .addService(new DatabaseServiceImpl())
+                .addService(new ProxyDatabaseServiceImpl())
                 .build();
     }
 

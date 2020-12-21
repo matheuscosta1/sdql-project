@@ -3,8 +3,8 @@ package sd.nosql.prototype.service.impl;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sd.nosql.prototype.*;
 import sd.nosql.prototype.Record;
+import sd.nosql.prototype.*;
 import sd.nosql.prototype.service.RaftClientService;
 
 public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImplBase {
@@ -14,9 +14,14 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
     @Override
     public void get(Key request, StreamObserver<RecordResult> responseObserver) {
         try {
+            int count = 0;
+            Record record;
             logger.info("get::{}", request.getKey());
             String operation = "get " + request.getKey();
-            Record record = raftClientService.query(operation);
+            do {
+                record = raftClientService.query(operation);
+            } while (record == null && count++ < 3);
+
             if (record != null) {
                 setResponse(responseObserver, ResultType.SUCCESS, record);
             } else {
@@ -31,14 +36,21 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
     @Override
     public void set(RecordInput request, StreamObserver<RecordResult> responseObserver) {
         try {
+            int count = 0;
             logger.info("set::");
             String getOperation = "get " + request.getKey();
             Record record = raftClientService.query(getOperation);
+            Record result;
             if (record == null) {
                 Record newRecord = request.getRecord().toBuilder().setVersion(1).build();
                 String data = newRecord.toString();
                 String operation = "set " + request.getKey() + " " + data;
-                raftClientService.applyTransaction(operation);
+                do {
+                    logger.info("try[{}]set::", count);
+                    result = raftClientService.applyTransaction(operation);
+                } while (result == null && count++ < 3);
+
+                if (result == null) logger.error("Error::null:{}", request);
                 setResponse(responseObserver, ResultType.SUCCESS, null);
             } else {
                 setResponse(responseObserver, ResultType.ERROR, record);
@@ -92,14 +104,18 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
     @Override
     public void testAndSet(RecordUpdate request, StreamObserver<RecordResult> responseObserver) {
         try {
+            int count = 0;
             logger.info("testAndSet::");
             String getOperation = "get " + request.getKey();
             Record record = raftClientService.query(getOperation);
+            Record newRecordResponse;
             if (record != null && record.getVersion() == request.getOldVersion()) {
                 Record newRecord = request.getRecord().toBuilder().setVersion(record.getVersion() + 1).build();
                 String data = newRecord.toString();
                 String operation = "set " + request.getKey() + " " + data;
-                Record newRecordResponse = raftClientService.applyTransaction(operation);
+                do {
+                    newRecordResponse = raftClientService.applyTransaction(operation);
+                } while (newRecordResponse == null && count++ < 3);
                 setResponse(responseObserver, ResultType.SUCCESS, newRecordResponse);
             } else if (record != null) {
                 setResponse(responseObserver, ResultType.ERROR_WV, record);

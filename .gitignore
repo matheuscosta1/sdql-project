@@ -165,3 +165,4 @@ sketch
 sdql-service/database
 sdql-service/tmp
 sdql-server/tmp
+sdql-server/database/

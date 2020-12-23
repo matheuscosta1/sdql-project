@@ -2,12 +2,10 @@ FROM maven:3.6.3-openjdk-14-slim
 
 WORKDIR /usr/local
 
+RUN mkdir -p /usr/local/database
+
 COPY ./sdql-server /usr/local/
 
 RUN mvn package
 
-RUN mkdir -p /usr/local/database
-
-ENTRYPOINT ["java","-cp","target/sdql-server-1.0-SNAPSHOT-jar-with-dependencies.jar","sd.nosql.RaftServer", "p1"]
-ENTRYPOINT ["java","-cp","target/sdql-server-1.0-SNAPSHOT-jar-with-dependencies.jar","sd.nosql.RaftServer", "p2"]
-ENTRYPOINT ["java","-cp","target/sdql-server-1.0-SNAPSHOT-jar-with-dependencies.jar","sd.nosql.RaftServer", "p3"]
+CMD ["java","-cp","target/sdql-server-1.0-SNAPSHOT-jar-with-dependencies.jar","sd.nosql.RaftServer", "p1"]

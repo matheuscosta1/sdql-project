@@ -4,12 +4,15 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {BrowserRouter as Router} from "react-router-dom"
+import { MessageContextProvider } from "./context/MessageContext" 
 
 ReactDOM.render(
   <React.StrictMode>
-    <Router>
-      <App />
-    </Router>
+    <MessageContextProvider>
+      <Router>
+        <App />
+      </Router>
+    </MessageContextProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

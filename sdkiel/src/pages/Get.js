@@ -1,28 +1,33 @@
-import { useState } from "react"
+import { useState, useContext } from "react"
 import InputField from "../components/InputField"
 import { get } from "../grpc/client"
 import Spinner from "../components/Spinner"
 import Record from "../components/Record"
 import Header from "../components/Header"
+import { MessageContext } from "../context/MessageContext"
 import "../css/Get.css"
 import "../css/Page.css"
 
 function Get(){
+    const { createMessage } = useContext(MessageContext)
     const [recordKey, setRecordKey] = useState("")
     const [fetchingData, setFetchingData] = useState(false)
     const [previous, setPrevious] = useState({})
     const [record, setRecord] = useState(undefined)
 
     const fetchDoc = () => {
-        setFetchingData(true)
-        get(recordKey, (err, result) => {
-            setFetchingData(false)
-            if(err) console.log(err)
-            else{
-                if(result.getResulttype() === 0) setRecord(result)
-                else console.log("error")
-            }
-        })
+        if(Number.isInteger(parseInt(recordKey))){
+            setFetchingData(true)
+            get(recordKey, (err, result) => {
+                setFetchingData(false)
+                if(err) createMessage("Error", `Something that shouldn't happen has happened! Error code (${err.code})`, "error")
+                else{
+                    if(result.getResulttype() === 0){
+                        setRecord(result)
+                    }else createMessage("Error", `Wow! Something weird happened. (Error code: ${result.getResulttype()})`, "error")
+                }
+            })
+        }else createMessage("Error", `Wait! I think key must be an integer, right?!`, "error")
     }
 
     return(

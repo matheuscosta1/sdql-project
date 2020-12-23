@@ -2,6 +2,16 @@ body{
     background-color: rgb(233, 233, 233);
 }
 
+.data-title, .advanced-title{
+    margin: 0;
+    margin-top: 15px;
+    font-size: 2.5em;
+    font-weight: 600;
+
+    text-transform: lowercase;
+    user-select: none;
+}
+
 .dashboard{
     position: relative;
 
@@ -40,6 +50,7 @@ body{
     opacity: 0;
 
     animation: show-up 0.5s ease-out 0.3s forwards;
+    cursor: default;
 }
 
 .dashboard button{
@@ -60,8 +71,8 @@ body{
     overflow: hidden;
     cursor: pointer;
 
-    transition: opacity 0.5s;
     opacity: 0;
+    transition: all 0.5s ease-out;
 
     animation: show-up 0.5s ease-out 0.5s forwards;
 }
@@ -97,11 +108,9 @@ body{
 }
 
 .dashboard button:disabled{
-    color: inherit;
-    opacity: 0;
+    color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.1);
     cursor: default;
-
-    animation: show-up-disabled 0.5s ease-out 0.5s forwards;
 }
 
 .dashboard button:disabled:hover::before{
@@ -124,7 +133,8 @@ body{
 }
 
 .spinner div{
-    background-color: rgb(252, 73, 162) !important;
+    background: rgb(255,125,192);
+    background: linear-gradient(180deg, rgba(255,125,192,1) 0%, rgba(244,52,181,1) 100%);
 }
 
 @keyframes grow{
@@ -149,11 +159,11 @@ body{
 
 @keyframes show-up-disabled{
     from{
-        transform: translateY(50px);
+        /* transform: translateY(50px); */
         opacity: 0;
     }
     to{
-        transform: translateY(0px);
+        /* transform: translateY(0px); */
         opacity: 0.5;
     }
 }

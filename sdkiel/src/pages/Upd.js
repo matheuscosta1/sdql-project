@@ -1,41 +1,44 @@
-import { useState } from "react"
+import { useState, useContext } from "react"
 import InputField from "../components/InputField"
 import InputKeyPair from "../components/InputKeyPair"
 import { get, createRecord, bytesToObject, testAndSet } from "../grpc/client"
 import Spinner from "../components/Spinner"
 import Header from "../components/Header"
+import { MessageContext } from "../context/MessageContext"
 import { IoIosAdd } from "react-icons/io"
 import "../css/Upd.css"
 import "../css/Page.css"
 
 function Upd(){
+    const { createMessage } = useContext(MessageContext)
     const [record, setRecord] = useState(undefined)
     const [data, setData] = useState([])
     const [recordKey, setRecordKey] = useState("")
     const [savingData, setSavingData] = useState(false)
 
     const getDocument = () => {
-        setSavingData(true)
-        get(recordKey, (err, result) => {
-            setSavingData(false)
-            if(err) console.log(err)
-            else{
-                if(result.getResulttype() === 0){
-                    const str = bytesToObject(result.getRecord().getData())
-                    console.log(result, str)
-                    setRecord(result)
-                    if(str){
-                        const json = JSON.parse(str)
-                        setData(Object.keys(json).map(key => ({key, value: json[key]})))
-                    }else setData([])
-                }else console.log("error code")
-            }
-        })
+        if(Number.isInteger(parseInt(recordKey))){
+            setSavingData(true)
+            get(recordKey, (err, result) => {
+                setSavingData(false)
+                if(err) createMessage("Error", `Something that shouldn't happen has happened! Error code (${err.code})`, "error")
+                else{
+                    if(result.getResulttype() === 0){
+                        const str = bytesToObject(result.getRecord().getData())
+                        console.log(result, str)
+                        setRecord(result)
+                        if(str){
+                            const json = JSON.parse(str)
+                            setData(Object.keys(json).map(key => ({key, value: json[key]})))
+                        }else setData([])
+                    }else createMessage("Error", `Wow! Something weird happened. (Error code: ${result.getResulttype()})`, "error")
+                }
+            })
+        }else createMessage("Error", `Wait! I think key must be an integer, right?!`, "error")
     }
 
     const handleDelete = (index) => {
         data.splice(index, 1)
-        console.log(data)
         setData([...data])
     }
 
@@ -58,10 +61,10 @@ function Upd(){
         setSavingData(true)
         testAndSet(recordKey, record.getRecord().getVersion(), createRecord(undefined, undefined, Buffer.from(JSON.stringify(getData()))), (err, result) => {
             setSavingData(false)
-            if(err) console.log(err)
+            if(err) createMessage("Error", err)
             else{
                 reset()
-                console.log(result)
+                createMessage("Success", "The record was updated sucessfully!")
             }
         })
     }

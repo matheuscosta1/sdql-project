@@ -54,6 +54,27 @@
     padding-right: 0;
 }
 
+nav .home-icon{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+nav .home-icon .home-hover-icon{
+    position: absolute;
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+}
+
+nav .home-icon .home-hover-icon.hovering{
+    opacity: 1;
+}
+
+nav .home-icon:hover::after{
+    display: none;
+}
+
 .header nav a:hover::after{
     content: "";
     position: absolute;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
@@ -68,3 +69,46 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `yarn build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+=======
+# Projeto Banco de Dados NoSQL
+
+## Descrição
+
+Este projeto tem como objetivo implementar um banco de dados NoSQL utilizando Java e gRPC.
+ 
+## Requisitos para executar o projeto no Ubuntu
+
+* Instalação do Docker
+
+```
+sudo apt-get update && sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - && sudo apt-key fingerprint 0EBFCD88 && sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable" && sudo apt-get update &&  sudo apt-get install docker-ce docker-ce-cli containerd.io -y && sudo
+ 
+    usermod -aG docker $USER && sudo chown $USER /var/run/docker.sock
+```
+
+* Instalação do Docker Compose
+
+```
+    sudo curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose &&
+    sudo chmod +x /usr/local/bin/docker-compose &&
+    sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+```
+
+## Executando o projeto
+
+A partir dos requisitos instalados, basta executar o seguinte comando no raiz do projeto:
+
+```
+    docker-compose build && docker-compose up
+```
+
+Assim será inicializado o Servidor do nosso Banco NoSQL.
+>>>>>>> 6bae99b775bb134bd5663035f6afd74a8b1cf8d8

@@ -31,9 +31,9 @@ public class RaftServer {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         Map<String,InetSocketAddress> id2addr = new HashMap<>();
-        id2addr.put("p1", new InetSocketAddress(HOSTNAME, 3000));
-        id2addr.put("p2", new InetSocketAddress(HOSTNAME, 3500));
-        id2addr.put("p3", new InetSocketAddress(HOSTNAME, 4000));
+        id2addr.put("p1", new InetSocketAddress(HOSTNAME, 5000));
+        id2addr.put("p2", new InetSocketAddress(HOSTNAME, 5500));
+        id2addr.put("p3", new InetSocketAddress(HOSTNAME, 6000));
 
         List<RaftPeer> addresses = id2addr.entrySet()
                 .stream()

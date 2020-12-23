@@ -1,33 +1,37 @@
-import { useState } from "react"
+import { useState, useContext } from "react"
 import InputField from "../components/InputField"
-import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io"
+import { IoIosArrowDown } from "react-icons/io"
 import { del, delVersion } from "../grpc/client"
 import Spinner from "../components/Spinner"
 import Header from "../components/Header"
+import { MessageContext } from "../context/MessageContext"
 import "../css/Del.css"
 import "../css/Page.css"
 
 function Del(){
+    const { createMessage } = useContext(MessageContext)
     const [showAdvanced, setShowAdvanced] = useState(false)
     const [recordKey, setRecordKey] = useState("")
     const [version, setVersion] = useState(undefined)
     const [deletingData, setDeletingData] = useState(false)
 
     const deleteData = () => {
-        setDeletingData(true)
-        if(version){
-            delVersion(recordKey, version, handleResult)
-        }else del(recordKey, handleResult)
+        if(Number.isInteger(parseInt(recordKey))){
+            setDeletingData(true)
+            if(version){
+                delVersion(recordKey, version, handleResult)
+            }else del(recordKey, handleResult)
+        }else createMessage("Error", `Wait! I think key must be an integer, right?!`, "error")
     }
 
     const handleResult = (err, result) => {
         setDeletingData(false)
-        if(err) console.log(err)
+        if(err) createMessage("Error", `Something that shouldn't happen has happened! Error code (${err.code})`, "error")
         else{
             if(result.getResulttype() === 0){
-                console.log("sucesso")
+                createMessage("Success", "The record was deleted successfully!")
                 reset()
-            }else console.log("error")
+            }else createMessage("Error", `Wow! Something weird happened. (Error code: ${result.getResulttype()})`, "error")
         }
     }
 
@@ -55,7 +59,7 @@ function Del(){
                     className="advanced-title"
                     onClick={() => {setShowAdvanced(!showAdvanced)}}
                 >
-                    Advanced {showAdvanced? <IoIosArrowUp /> : <IoIosArrowDown />}
+                    Advanced <span className={`advanced-icon ${showAdvanced?"up":"down"}`}><IoIosArrowDown /></span>
                 </h1>
                     {
                         showAdvanced && <div className="advanced-fields">

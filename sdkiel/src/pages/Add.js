@@ -1,60 +1,56 @@
-import { useState } from "react"
+import { useState, useContext } from "react"
 import InputField from "../components/InputField"
 import InputKeyPair from "../components/InputKeyPair"
 import { set, createRecord } from "../grpc/client"
 import Spinner from "../components/Spinner"
 import Header from "../components/Header"
+import { MessageContext } from "../context/MessageContext"
+
 import "../css/Add.css"
 import "../css/Page.css"
 
 function Add(){
-    const [fields, setFields] = useState({})
-    const [fieldsData, setFieldsData] = useState({})
+    const { createMessage } = useContext(MessageContext) 
+    const [fields, setFields] = useState([])
     const [recordKey, setRecordKey] = useState("")
     const [savingData, setSavingData] = useState(false)
 
-    const handleNewField = () => {
-        const key = new Date().getTime()
-        const obj = {}
-        const Component = <InputKeyPair inputs={fieldsData} key={key} handleDelete={() => handleInputDeletion(key)} values={obj}/>
-        setFieldsData({...fieldsData, [key]: obj})
-        setFields({...fields, [key]: Component})
-    }
+    const handleNewField = () => setFields([...fields, {key:"", value:""}])
 
-    const handleInputDeletion = (key) => {
-        const {[key]: _, ...others} = fields
-        setFields(others)
+    const handleInputDeletion = (index) => {
+        fields.splice(index, 1)
+        setFields([...fields])
     }
 
     const getData = () => {
-        let data = {}
-        let keys = Object.keys(fields)
+        const obj = {}
 
-        for(let i=0, length=keys.length; i<length; i++){
-            let obj = fieldsData[keys[i]]
-            if(obj.key) data[obj.key] = obj.value 
+        for(let i=0, length=fields.length; i<length; i++){
+            const {key, value} = fields[i]
+            if(key) obj[key] = value
         }
 
-        return data
+        return obj
     }
 
     const addToDatabase = () => {
-        if(recordKey){
+        if(recordKey && Number.isInteger(parseInt(recordKey))){
             const record = createRecord(undefined, undefined, Buffer.from(JSON.stringify(getData())))
             setSavingData(true)
             set(recordKey, record, (err, result) => {
                 reset()
                 setSavingData(false)
-                if(err) console.log(err)
-                else console.log(result)
+                if(err){
+                    console.log(err)
+                    createMessage("Error", `Something that shouldn't happen has happened! Error code (${err.code})`, "error")
+                }else createMessage("Success", "The record was inserted successfully!")
             })
-        }
+        }else createMessage("Error", `Wait! I think key must be an integer, right?!`, "error")
     }
 
     const reset = () => {
         setRecordKey("")
-        setFields({})
-        setFieldsData({})
+        setFields([])
     }
 
     return (
@@ -76,7 +72,13 @@ function Add(){
                     <h1 className="data-title">Data</h1>
                     <div className="data-fields">
                         {
-                            Object.keys(fields).map(key => fields[key])
+                            fields.map((obj, index) => (
+                                <InputKeyPair 
+                                    values={obj} 
+                                    key={obj.key+index}
+                                    handleDelete = {() => {handleInputDeletion(index)}}
+                                />
+                            ))
                         }
                     </div>
                 </div>

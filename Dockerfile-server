@@ -6,4 +6,4 @@ COPY ./sdql-service /usr/local/
 
 RUN mvn package -DskipTests
 
-ENTRYPOINT ["java","-cp","application/target/application-1.0-SNAPSHOT.jar","sd.nosql.Server"]
+ENTRYPOINT ["java","-cp","application/target/application-1.0-SNAPSHOT.jar","sd.nosql.GrpcServer"]

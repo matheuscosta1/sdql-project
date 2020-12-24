@@ -11,14 +11,6 @@
     margin-top: 20px
 }
 
-.data-title, .advanced-title{
-    margin: 0;
-    margin-top: 15px;
-    font-size: 2.5em;
-
-    text-transform: lowercase;
-    user-select: none;
-}
 
 .del .key-pairs .input-key-pair, .advanced .input-field{
     margin-bottom: 15px;
@@ -26,7 +18,7 @@
 
 .data-fields, .advanced-fields, .info-data{
     position: relative;
-    pdeling: 0 25px;
+    padding: 0 25px;
 }
 
 .del .data-fields:empty::after{
@@ -43,4 +35,18 @@
 
    cursor: pointer;
    width: 250px;
+   margin-bottom: 10px !important;
+}
+
+.advanced-title .advanced-icon{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
+
+    transition: transform 0.25s ease-out;
+}
+
+.advanced-title .advanced-icon.up{
+    transform: rotate(180deg);
 }

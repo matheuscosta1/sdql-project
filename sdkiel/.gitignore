@@ -1,3 +1,28 @@
+<<<<<<< HEAD
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+=======
 .idea
 # Created by https://www.toptal.com/developers/gitignore/api/intellij,maven,java,react
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,maven,java,react
@@ -82,7 +107,6 @@ fabric.properties
 # modules.xml
 # .idea/misc.xml
 # *.ipr
-*.iml
 
 # Sonarlint plugin
 # https://plugins.jetbrains.com/plugin/7973-sonarlint
@@ -160,9 +184,4 @@ thumb
 sketch
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,maven,java,react
-
-# sdql-project specific
-sdql-service/database
-sdql-service/tmp
-sdql-server/tmp
-sdql-server/database/
+>>>>>>> 6bae99b775bb134bd5663035f6afd74a8b1cf8d8

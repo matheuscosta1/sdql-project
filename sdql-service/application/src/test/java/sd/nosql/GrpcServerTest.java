@@ -6,14 +6,18 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sd.nosql.prototype.*;
 import sd.nosql.prototype.Record;
+import sd.nosql.prototype.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.Time;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,11 +26,11 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 /***
-=======================================================================================================================
-    Due to the nature of Raft Protocol, in order to be able to rerun the rest successfully,
-    always empty or remove the folder that stores the logs from Raft.
-    Also, is needed to have raft running on background.
-=======================================================================================================================
+ =======================================================================================================================
+ Due to the nature of Raft Protocol, in order to be able to rerun the rest successfully,
+ always empty or remove the folder that stores the logs from Raft.
+ Also, is needed to have raft running on background.
+ =======================================================================================================================
  ***/
 public class GrpcServerTest {
     private static final Logger logger = LoggerFactory.getLogger(GrpcServerTest.class);
@@ -76,6 +80,7 @@ public class GrpcServerTest {
     @Test
     void shouldWriteParallelWithAsyncStub() throws InterruptedException {
         AtomicInteger count = new AtomicInteger();
+        List<Boolean> allSuccess = new ArrayList<>();
         LongStream.range(2000L, 3000L).parallel().forEach(number -> {
             var asyncResult = asyncStub.set(RecordInput.newBuilder()
                     .setKey(number)
@@ -84,11 +89,19 @@ public class GrpcServerTest {
                             .setData(ByteString.copyFrom(String.format("{\"message\": \" To every dream that I left behind....counting\", \"time\": %d }", number), StandardCharsets.UTF_8))
                             .build())
                     .build());
-            Futures.addCallback(asyncResult, new FutureCallback<>() {
+            try {
+                Thread.sleep(100); // Sleep minimo para nao ocorrer a chance do GET sair do Client antes do SET
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            var asyncGet = asyncStub.get(Key.newBuilder()
+                    .setKey(number)
+                    .build());
+            Futures.addCallback(asyncGet, new FutureCallback<>() {
                 @Override
                 public void onSuccess(RecordResult recordResult) {
                     count.getAndIncrement();
-                    assert recordResult.getResultType().equals(ResultType.SUCCESS);
+                    allSuccess.add(recordResult.getResultType().equals(ResultType.SUCCESS));
                 }
 
                 @Override
@@ -101,6 +114,8 @@ public class GrpcServerTest {
             logger.info("Count: {}", count.get());
             Thread.sleep(1000);
         }
+        logger.info("Total: {}, Result true: {}",allSuccess.size(), allSuccess.stream().filter(it -> it).count());
+        assert allSuccess.stream().allMatch(it -> it);
     }
 
     @Test

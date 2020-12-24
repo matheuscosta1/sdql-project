@@ -1,12 +1,17 @@
-import "../css/Home.css"
+import { useContext } from "react"
 import Header from "../components/Header"
 import Circles from "../svg/circles.svg"
 import { Link } from "react-router-dom"
+import { MessageContext } from "../context/MessageContext"
+
+import "../css/Home.css"
 
 function Home(){
+    const { createMessage } = useContext(MessageContext)
+
     return(
         <div className="home">
-            <Header />
+            <Header withHome={false} />
             <div className="circles">
                 <img src={Circles} alt="Circles"/>
             </div>

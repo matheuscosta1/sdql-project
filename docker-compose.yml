@@ -7,9 +7,11 @@ services:
       context: .
       dockerfile: Dockerfile-server-ratis
     ports:
-      - "3000:3000"
-      - "3500:3500"
-      - "4000:4000"
+      - "6400:6400"
+      - "6500:6500"
+      - "6600:6600"
+      - "6700:6700"
+      - "6800:6800"
     volumes:
       - database:/usr/local/database
     depends_on:

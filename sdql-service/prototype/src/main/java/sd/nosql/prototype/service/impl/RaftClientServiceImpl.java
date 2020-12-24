@@ -56,9 +56,11 @@ public class RaftClientServiceImpl implements RaftClientService {
 
     private RaftClient getRaftClient() {
         Map<String, InetSocketAddress> id2addr = new HashMap<>();
-        id2addr.put("p1", new InetSocketAddress(HOSTNAME, 5000));
-        id2addr.put("p2", new InetSocketAddress(HOSTNAME, 5500));
-        id2addr.put("p3", new InetSocketAddress(HOSTNAME, 6000));
+        id2addr.put("p1", new InetSocketAddress(HOSTNAME, 6400));
+        id2addr.put("p2", new InetSocketAddress(HOSTNAME, 6500));
+        id2addr.put("p3", new InetSocketAddress(HOSTNAME, 6600));
+        id2addr.put("p4", new InetSocketAddress(HOSTNAME, 6700));
+        id2addr.put("p5", new InetSocketAddress(HOSTNAME, 6800));
         List<RaftPeer> addresses = id2addr.entrySet()
                 .stream()
                 .map(e -> new RaftPeer(RaftPeerId.valueOf(e.getKey()), e.getValue()))

@@ -5,7 +5,8 @@ WORKDIR /usr/local
 RUN mkdir -p /usr/local/database
 
 COPY ./sdql-server /usr/local/
+COPY ./docker-entrypoint.sh /usr/local/
 
 RUN mvn package
 
-CMD ["java","-cp","target/sdql-server-1.0-SNAPSHOT-jar-with-dependencies.jar","sd.nosql.RaftServer", "p1"]
+CMD ["tail","-f","/dev/null"]

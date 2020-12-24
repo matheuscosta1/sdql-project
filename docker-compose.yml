@@ -14,12 +14,12 @@ services:
       - "6800:6800"
     volumes:
       - database:/usr/local/database
-    depends_on:
-      - "grpc-server"
     networks:
-      envoymesh:
+      - envoymesh:
         aliases:
-          - kv-backend-service
+          - kv-backend-ratis-server
+    stdin_open: true
+    tty: true
 
   grpc-server:
     build:

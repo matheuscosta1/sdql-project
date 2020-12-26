@@ -8,5 +8,6 @@ COPY ./sdql-server /usr/local/
 COPY ./docker-entrypoint.sh /usr/local/
 
 RUN mvn package
+RUN chmod +x docker-entrypoint.sh
 
-CMD ["tail","-f","/dev/null"]
+CMD ["sh","docker-entrypoint.sh"]

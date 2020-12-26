@@ -15,7 +15,7 @@ services:
     volumes:
       - database:/usr/local/database
     networks:
-      - envoymesh:
+      envoymesh:
         aliases:
           - kv-backend-ratis-server
     stdin_open: true
@@ -27,6 +27,8 @@ services:
       dockerfile: Dockerfile-server
     ports:
       - "8080:8080"
+    environment:
+      - KV_BACKEND_RATIS_HOSTNAME=kv-backend-ratis-server
     networks:
       envoymesh:
         aliases:

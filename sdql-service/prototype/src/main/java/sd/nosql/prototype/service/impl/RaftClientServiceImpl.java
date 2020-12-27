@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class RaftClientServiceImpl implements RaftClientService {
     private static final Logger logger = LoggerFactory.getLogger(RaftClientServiceImpl.class);
     private static final String RAFT_GROUP_ID = "sdql-group-id___";
-    private static final String HOSTNAME = "127.0.0.1";
+    private static final String HOSTNAME = System.getenv("KV_BACKEND_RATIS_HOSTNAME") != null ? System.getenv("KV_BACKEND_RATIS_HOSTNAME") : "127.0.0.1";
 
     @Override
     public Record query(String operation) {

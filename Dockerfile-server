@@ -4,10 +4,6 @@ WORKDIR /usr/local
 
 COPY ./sdql-service /usr/local/
 
-RUN mvn package
-
-RUN mkdir -p /usr/local/database
-
-RUN mkdir -p /usr/local/database/data
+RUN mvn package -DskipTests
 
 ENTRYPOINT ["java","-cp","application/target/application-1.0-SNAPSHOT.jar","sd.nosql.GrpcServer"]

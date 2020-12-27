@@ -1,23 +1,23 @@
 package sd.nosql;
 
-
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sd.nosql.prototype.*;
 import sd.nosql.prototype.Record;
+import sd.nosql.prototype.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.Time;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,61 +25,31 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
-/*
-=======================================================================================================================
-    Due to the nature of restoring state after a relaunch. To re-run the tests, always empty the folder database/data
-    and delete the version.db file.
-=======================================================================================================================
- */
-public class ServerTest {
-    private static final Logger logger = LoggerFactory.getLogger(ServerTest.class);
+/***
+ =======================================================================================================================
+ Due to the nature of Raft Protocol, in order to be able to rerun the rest successfully,
+ always empty or remove the folder that stores the logs from Raft.
+ Also, is needed to have raft running on background.
+ =======================================================================================================================
+ ***/
+public class GrpcServerTest {
+    private static final Logger logger = LoggerFactory.getLogger(GrpcServerTest.class);
+    private ManagedChannel channel;
     private DatabaseServiceGrpc.DatabaseServiceBlockingStub blockingStub;
     private DatabaseServiceGrpc.DatabaseServiceFutureStub asyncStub;
-    private static Server server;
+    private static GrpcServer grpcServer;
 
-    @BeforeAll
-    static void init() throws IOException, InterruptedException {
-        server = new Server(8080);
-        AtomicBoolean started = new AtomicBoolean(false);
-        new Thread(() -> {
-            try {
-                server.createBasePath();
-                started.set(true);
-                server.start();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
-        while (!started.get()) Thread.sleep(1000);
-    }
+    /***
+     * The tests order execution matter, so, in order to run the test correctly,
+     * run each in order of appearance in the code
+     */
 
-    @BeforeEach
-    void initEach() throws IOException, InterruptedException {
-
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 8080)
-                .usePlaintext()
-                .build();
-
-        logger.info("Channel: {}", channel);
-        blockingStub = DatabaseServiceGrpc.newBlockingStub(channel);
-        asyncStub = DatabaseServiceGrpc.newFutureStub(channel);
-    }
-
-    @AfterAll
-    static void clean() {
-        server.cleanFiles();
-    }
-
-    // The two tests ahead perform the same operations so they can't be executed twice [only one, then only after database restore the other might be run].
     @Test
-    void write_parallel_100000_with_multiple_clients_successful() {
+    void shouldWriteParallelWithMultipleClients() {
         List<Client> managedChannelCircular = IntStream.range(0, 5).mapToObj(i -> new Client(i, ManagedChannelBuilder.forAddress("localhost", 8080)
                 .usePlaintext()
                 .build())).collect(Collectors.toList());
-
-        LongStream.range(10000L, 20000L).parallel().forEach(number -> {
+        LongStream.range(0L, 1000L).parallel().forEach(number -> {
             Client client = managedChannelCircular.get((int) number % 5);
             RecordResult resultInsert = DatabaseServiceGrpc.newBlockingStub(client.getManagedChannel()).set(RecordInput.newBuilder()
                     .setKey(number)
@@ -91,12 +61,11 @@ public class ServerTest {
             client.upCount();
             assert resultInsert.getResultType().equals(ResultType.SUCCESS);
         });
-        logger.info("Done");
     }
 
     @Test
-    void write_parallel_100000_successful() {
-        LongStream.range(0L, 10000L).parallel().forEach(number -> {
+    void shouldNotWriteSuccessfully() {
+        LongStream.range(0L, 1000L).parallel().forEach(number -> {
             RecordResult resultInsert = blockingStub.set(RecordInput.newBuilder()
                     .setKey(number)
                     .setRecord(Record.newBuilder()
@@ -109,9 +78,10 @@ public class ServerTest {
     }
 
     @Test
-    void write_parallel_100000_async_successful() throws InterruptedException {
+    void shouldWriteParallelWithAsyncStub() throws InterruptedException {
         AtomicInteger count = new AtomicInteger();
-        LongStream.range(0L, 10000L).parallel().forEach(number -> {
+        List<Boolean> allSuccess = new ArrayList<>();
+        LongStream.range(2000L, 3000L).parallel().forEach(number -> {
             var asyncResult = asyncStub.set(RecordInput.newBuilder()
                     .setKey(number)
                     .setRecord(Record.newBuilder()
@@ -119,11 +89,19 @@ public class ServerTest {
                             .setData(ByteString.copyFrom(String.format("{\"message\": \" To every dream that I left behind....counting\", \"time\": %d }", number), StandardCharsets.UTF_8))
                             .build())
                     .build());
-            Futures.addCallback(asyncResult, new FutureCallback<>() {
+            try {
+                Thread.sleep(100); // Sleep minimo para nao ocorrer a chance do GET sair do Client antes do SET
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            var asyncGet = asyncStub.get(Key.newBuilder()
+                    .setKey(number)
+                    .build());
+            Futures.addCallback(asyncGet, new FutureCallback<>() {
                 @Override
                 public void onSuccess(RecordResult recordResult) {
                     count.getAndIncrement();
-                    assert recordResult.getResultType().equals(ResultType.SUCCESS);
+                    allSuccess.add(recordResult.getResultType().equals(ResultType.SUCCESS));
                 }
 
                 @Override
@@ -132,15 +110,17 @@ public class ServerTest {
                 }
             }, MoreExecutors.directExecutor());
         });
-        while (count.get() < 10000) {
+        while (count.get() < 1000) {
             logger.info("Count: {}", count.get());
             Thread.sleep(1000);
         }
+        logger.info("Total: {}, Result true: {}",allSuccess.size(), allSuccess.stream().filter(it -> it).count());
+        assert allSuccess.stream().allMatch(it -> it);
     }
 
     @Test
-    void update_all_10000_in_sequence() {
-        LongStream.range(0L, 10000L).parallel().forEach(number -> {
+    void shouldUpdateAllInSequence() {
+        LongStream.range(2000L, 3000L).parallel().forEach(number -> {
             RecordResult result = blockingStub.testAndSet(RecordUpdate.newBuilder()
                     .setOldVersion(1)
                     .setKey(number)
@@ -157,18 +137,49 @@ public class ServerTest {
     }
 
     @Test
-    void read_all_10000_in_sequence() {
-        LongStream.range(0L, 10000L).parallel().forEach(number -> {
+    void shouldReadAllInSequence() {
+        LongStream.range(0L, 1000L).parallel().forEach(number -> {
+            RecordResult result = blockingStub.get(Key.newBuilder().setKey(number).build());
+            if (number % 1000 == 0) logger.info("Result: {}", result);
+            assert result.getResultType().equals(ResultType.SUCCESS);
+        });
+        LongStream.range(2000L, 3000L).parallel().forEach(number -> {
             RecordResult result = blockingStub.get(Key.newBuilder().setKey(number).build());
             if (number % 1000 == 0) logger.info("Result: {}", result);
             assert result.getResultType().equals(ResultType.SUCCESS);
         });
     }
 
+    @BeforeAll
+    static void startServer() throws InterruptedException {
+        grpcServer = new GrpcServer(8080);
+        AtomicBoolean started = new AtomicBoolean(false);
+        new Thread(() -> {
+            try {
+                logger.info("GRPC server starting...");
+                started.set(true);
+                grpcServer.start();
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+        while (!started.get()) Thread.sleep(1000);
+    }
 
-    class Client {
-        private int id;
-        private ManagedChannel managedChannel;
+    @BeforeEach
+    void startBlockingClient() {
+        channel = ManagedChannelBuilder.forAddress("localhost", 8080)
+                .usePlaintext()
+                .build();
+
+        logger.info("Channel: {}", channel);
+        blockingStub = DatabaseServiceGrpc.newBlockingStub(channel);
+        asyncStub = DatabaseServiceGrpc.newFutureStub(channel);
+    }
+
+    static class Client {
+        private final int id;
+        private final ManagedChannel managedChannel;
         private int count;
 
         public Client(int id, ManagedChannel managedChannel) {
@@ -178,11 +189,6 @@ public class ServerTest {
 
         public ManagedChannel getManagedChannel() {
             return managedChannel;
-        }
-
-
-        public int getCount() {
-            return count;
         }
 
         public void upCount() {

@@ -1,0 +1,13 @@
+FROM maven:3.6.3-openjdk-14-slim
+
+WORKDIR /usr/local
+
+RUN mkdir -p /usr/local/database
+
+COPY ./sdql-server /usr/local/
+COPY ./docker-entrypoint.sh /usr/local/
+
+RUN mvn package
+RUN chmod +x docker-entrypoint.sh
+
+CMD ["sh","docker-entrypoint.sh"]

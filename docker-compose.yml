@@ -2,14 +2,33 @@ version: "3.7"
 
 services:
 
+  grpc-ratis-server:
+    build:
+      context: .
+      dockerfile: Dockerfile-server-ratis
+    ports:
+      - "6400:6400"
+      - "6500:6500"
+      - "6600:6600"
+      - "6700:6700"
+      - "6800:6800"
+    volumes:
+      - database:/usr/local/database
+    networks:
+      envoymesh:
+        aliases:
+          - kv-backend-ratis-server
+    stdin_open: true
+    tty: true
+
   grpc-server:
     build:
       context: .
       dockerfile: Dockerfile-server
     ports:
       - "8080:8080"
-    volumes:
-      - database:/usr/local/database
+    environment:
+      - KV_BACKEND_RATIS_HOSTNAME=kv-backend-ratis-server
     networks:
       envoymesh:
         aliases:

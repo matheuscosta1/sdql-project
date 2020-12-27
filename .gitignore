@@ -82,6 +82,7 @@ fabric.properties
 # modules.xml
 # .idea/misc.xml
 # *.ipr
+*.iml
 
 # Sonarlint plugin
 # https://plugins.jetbrains.com/plugin/7973-sonarlint
@@ -159,3 +160,9 @@ thumb
 sketch
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,maven,java,react
+
+# sdql-project specific
+sdql-service/database
+sdql-service/tmp
+sdql-server/tmp
+sdql-server/database/

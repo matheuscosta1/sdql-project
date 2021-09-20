@@ -158,4 +158,8 @@ psd
 thumb
 sketch
 
+target
+build
+dist
+*.log
 # End of https://www.toptal.com/developers/gitignore/api/intellij,maven,java,react

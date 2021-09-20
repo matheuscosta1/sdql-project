@@ -81,7 +81,7 @@ public class GrpcServerTest {
     void shouldWriteParallelWithAsyncStub() throws InterruptedException {
         AtomicInteger count = new AtomicInteger();
         List<Boolean> allSuccess = new ArrayList<>();
-        LongStream.range(2000L, 3000L).parallel().forEach(number -> {
+        LongStream.range(7000L, 8000L).parallel().forEach(number -> {
             var asyncResult = asyncStub.set(RecordInput.newBuilder()
                     .setKey(number)
                     .setRecord(Record.newBuilder()
@@ -90,7 +90,7 @@ public class GrpcServerTest {
                             .build())
                     .build());
             try {
-                Thread.sleep(100); // Sleep minimo para nao ocorrer a chance do GET sair do Client antes do SET
+                Thread.sleep(120); // Sleep minimo para nao ocorrer a chance do GET sair do Client antes do SET
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
